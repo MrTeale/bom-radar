@@ -3,10 +3,19 @@ service: my-sls-rest # NOTE: update this with your service name
 
 plugins:
   - serverless-python-requirements
+  - serverless-apigw-binary
+  - serverless-apigwy-binary
 
 provider:
   name: aws
   runtime: python3.6
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+  apigwBinary:
+    types:
+      - '*/*'
 
 functions:
   hello:
@@ -17,6 +26,7 @@ functions:
           path: /
           method: get
           cors: true
+          contentHandling: CONVERT_TO_BINARY
 
 resources:
   Resources:

@@ -1,3 +1,4 @@
+import base64
 import json
 import re
 from io import BytesIO
@@ -5,10 +6,23 @@ from io import BytesIO
 import numpy as np
 import requests
 from bs4 import BeautifulSoup
-
 from PIL import Image
-from flask import send_file
 
+def send_file(path):
+    with open(path, 'rb') as image_processed:
+        image_processed_data = image_processed.read()
+    image_64_encode = base64.encodestring(image_processed_data)
+
+    image_string = image_64_encode.decode('utf-8')
+
+    return {
+        "statusCode": "200",
+        "body": image_string,
+        "headers": {
+            "Content-Type": "image/gif",
+        },
+        "isBase64Encoded": "true"
+    }
 
 def main(event, context):
 
@@ -53,10 +67,10 @@ def main(event, context):
         
         created_images.append(new_image)
 
-    created_images[0].save('radar.gif',
+    created_images[0].save('/tmp/radar.gif',
                 save_all=True,
                 append_images=created_images[1:],
                 duration=400,
                 loop=0)
 
-    return send_file('radar.gif', mimetype='image/gif')
+    return send_file('/tmp/radar.gif')
