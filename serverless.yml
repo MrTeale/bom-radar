@@ -1,0 +1,53 @@
+service: my-sls-rest # NOTE: update this with your service name
+
+
+plugins:
+  - serverless-python-requirements
+
+provider:
+  name: aws
+  runtime: python3.6
+
+functions:
+  hello:
+    handler: handler.main
+    role: IAMRole
+    events:
+      - http:
+          path: /
+          method: get
+          cors: true
+
+resources:
+  Resources:
+    IAMRole:
+      Type: AWS::IAM::Role
+      Properties:
+        Path: /api/
+        RoleName: IAMRole
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: IAMPolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource: 
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:logs'
+                        - Ref: 'AWS::Region'
+                        - Ref: 'AWS::AccountId'
+                        - 'log-group:/aws/lambda/*:*:*'
