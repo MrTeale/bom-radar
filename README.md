@@ -6,10 +6,10 @@
 BOM-Radar generates an restful endpoint via AWS API Gateway that displays the Australian Bureau of Meteorology (BOM)'s Radar for my current location (Brisbane, Australia).
 
 ## Built With
-[Python 3.6](https://www.python.org/)
-[Serverless](https://www.serverless.com/)
-[AWS API Gateway](https://aws.amazon.com/api-gateway/)
-[AWS Lambda](https://aws.amazon.com/lambda)
+* [Python 3.6](https://www.python.org/)
+* [Serverless](https://www.serverless.com/)
+* [AWS API Gateway](https://aws.amazon.com/api-gateway/)
+* [AWS Lambda](https://aws.amazon.com/lambda)
 
 
 ## Installation
