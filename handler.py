@@ -3,7 +3,6 @@ import json
 import re
 from io import BytesIO
 
-import numpy as np
 import requests
 from bs4 import BeautifulSoup
 from PIL import Image
@@ -11,7 +10,7 @@ from PIL import Image
 def send_file(path):
     with open(path, 'rb') as image_processed:
         image_processed_data = image_processed.read()
-    image_64_encode = base64.encodestring(image_processed_data)
+    image_64_encode = base64.b64encode(image_processed_data)
 
     image_string = image_64_encode.decode('utf-8')
 
@@ -33,28 +32,33 @@ def main(event, context):
     range_link = 'http://www.bom.gov.au/products/radar_transparencies/IDR503.range.png'
     background_link = 'http://www.bom.gov.au/products/radar_transparencies/IDR503.background.png'
 
-    page_response = requests.get(page_link)
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+    }
+
+    page_response = requests.get(page_link, headers=headers)
     soup = BeautifulSoup(page_response.text, features='html.parser')
-    image_names = soup.find_all("script")[8]
+    # print(soup)
+    image_names = soup.find_all("script")[11]
     p = re.compile(r'theImageNames\[[0-9]{1,3}\] = "(.*?)";')
     gif_links = p.findall(str(image_names))
 
     gif_images = []
 
     for link in gif_links:
-        response = requests.get(link)
+        response = requests.get("http://www.bom.gov.au" + link, headers=headers)
         gif_images.append(Image.open(BytesIO(response.content)).convert("RGBA"))
 
-    response = requests.get(range_link)
+    response = requests.get(range_link, headers=headers)
     range_image = Image.open(BytesIO(response.content)).convert("RGBA")
 
-    response = requests.get(locations_link)
+    response = requests.get(locations_link, headers=headers)
     locations_image = Image.open(BytesIO(response.content)).convert("RGBA")
 
-    response = requests.get(topography_link)
+    response = requests.get(topography_link, headers=headers)
     topography_image = Image.open(BytesIO(response.content)).convert("RGBA")
 
-    response = requests.get(background_link)
+    response = requests.get(background_link, headers=headers)
     background_image = Image.open(BytesIO(response.content)).convert("RGBA")
 
     created_images = []
@@ -74,3 +78,6 @@ def main(event, context):
                 loop=0)
 
     return send_file('/tmp/radar.gif')
+
+if __name__ == "__main__":
+    main("", "")
