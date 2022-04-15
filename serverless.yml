@@ -9,8 +9,13 @@ plugins:
 
 provider:
   name: aws
-  runtime: python3.6
+  runtime: python3.9
   stage: prod
+
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!.env/**'
 
 custom:
   pythonRequirements:
@@ -33,7 +38,8 @@ functions:
           path: /
           method: get
           cors: true
-          contentHandling: CONVERT_TO_BINARY
+          response:
+            contentHandling: CONVERT_TO_BINARY
 
 resources:
   Resources:
