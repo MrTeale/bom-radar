@@ -4,13 +4,15 @@ app: web-services
 
 plugins:
   - serverless-python-requirements
-  - serverless-apigw-binary
   - serverless-domain-manager
 
 provider:
   name: aws
   runtime: python3.9
   stage: prod
+  apiGateway:
+    binaryMediaTypes:
+      - '*/*'
 
 package:
   patterns:
@@ -20,9 +22,6 @@ package:
 custom:
   pythonRequirements:
     dockerizePip: 'non-linux'
-  apigwBinary:
-    types:
-      - '*/*'
   customDomain:
     domainName: radar.lachlanteale.com
     basePath: ''
