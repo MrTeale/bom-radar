@@ -25,12 +25,12 @@ def send_file(path):
 
 def main(event, context):
 
-    page_link = 'http://www.bom.gov.au/products/IDR1053.loop.shtml'
+    page_link = 'http://www.bom.gov.au/products/IDR663.loop.shtml'
 
-    locations_link = 'http://www.bom.gov.au/products/radar_transparencies/IDR1053.locations.png'
-    topography_link = 'http://www.bom.gov.au/products/radar_transparencies/IDR1053.topography.png'
-    range_link = 'http://www.bom.gov.au/products/radar_transparencies/IDR1053.range.png'
-    background_link = 'http://www.bom.gov.au/products/radar_transparencies/IDR1053.background.png'
+    locations_link = 'http://www.bom.gov.au/products/radar_transparencies/IDR663.locations.png'
+    topography_link = 'http://www.bom.gov.au/products/radar_transparencies/IDR663.topography.png'
+    range_link = 'http://www.bom.gov.au/products/radar_transparencies/IDR663.range.png'
+    background_link = 'http://www.bom.gov.au/products/radar_transparencies/IDR663.background.png'
 
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
@@ -38,8 +38,8 @@ def main(event, context):
 
     page_response = requests.get(page_link, headers=headers)
     soup = BeautifulSoup(page_response.text, features='html.parser')
-    # print(soup)
-    image_names = soup.find_all("script")[11]
+    image_names = soup.find_all("script")[12]
+
     p = re.compile(r'theImageNames\[[0-9]{1,3}\] = "(.*?)";')
     gif_links = p.findall(str(image_names))
 
