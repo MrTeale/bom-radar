@@ -13,6 +13,8 @@ provider:
   apiGateway:
     binaryMediaTypes:
       - '*/*'
+      - 'image/gif'
+      - 'image/*'
 
 package:
   patterns:
@@ -27,6 +29,7 @@ custom:
     basePath: ''
     stage: ${self:provider.stage}
     createRoute53Record: false
+    autoDomain: true
 
 functions:
   main:

@@ -15,12 +15,16 @@ def send_file(path):
     image_string = image_64_encode.decode('utf-8')
 
     return {
-        "statusCode": "200",
+        "statusCode": 200,
         "body": image_string,
         "headers": {
             "Content-Type": "image/gif",
+            "Cache-Control": "max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "GET, OPTIONS"
         },
-        "isBase64Encoded": "true"
+        "isBase64Encoded": True
     }
 
 def main(event, context):
