@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: BOM Radar - Weather radar image generator
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: radar.lachlanteale.com
+    Description: Custom domain name for the API
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: python3.9
+    Environment:
+      Variables:
+        LOG_LEVEL: INFO
+
+Resources:
+  BomRadarFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: bom-radar-prod-main
+      CodeUri: ./
+      Handler: handler.main
+      Description: Fetches and processes BOM radar images into animated GIF
+      Role: !GetAtt BomRadarFunctionRole.Arn
+      Events:
+        GetRadar:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BomRadarApi
+            Path: /
+            Method: GET
+
+  BomRadarApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: bom-radar-prod
+      StageName: prod
+      BinaryMediaTypes:
+        - '*/*'
+        - 'image/gif'
+        - 'image/*'
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowMethods: "'GET,OPTIONS'"
+
+  BomRadarFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: BOMIAMRole
+      Path: /api/
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: BOMIAMPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*:*:*'
+
+Outputs:
+  BomRadarApi:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${BomRadarApi}.execute-api.${AWS::Region}.amazonaws.com/prod/'
+  BomRadarFunction:
+    Description: BOM Radar Lambda Function ARN
+    Value: !GetAtt BomRadarFunction.Arn
+  BomRadarFunctionRole:
+    Description: IAM Role ARN for Lambda Function
+    Value: !GetAtt BomRadarFunctionRole.Arn
