@@ -12,7 +12,7 @@ Globals:
   Function:
     Timeout: 30
     MemorySize: 512
-    Runtime: python3.9
+    Runtime: python3.12
     Environment:
       Variables:
         LOG_LEVEL: INFO
