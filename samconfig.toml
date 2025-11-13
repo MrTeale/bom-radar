@@ -1,0 +1,18 @@
+version = 0.1
+
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "bom-radar"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket"
+s3_prefix = "bom-radar"
+region = "us-east-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM CAPABILITY_NAMED_IAM"
+parameter_overrides = "DomainName=radar.lachlanteale.com"
+image_repositories = []
+
+[default.build]
+[default.build.parameters]
+cached = true
+parallel = true

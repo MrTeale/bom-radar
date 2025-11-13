@@ -307,6 +307,11 @@ cython_debug/
 # Ignore build directory
 .serverless
 
+### AWS SAM ###
+# SAM build artifacts
+.aws-sam/
+samconfig.toml.bak
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
