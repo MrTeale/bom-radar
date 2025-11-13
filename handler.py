@@ -1,11 +1,15 @@
 import base64
 import json
+import logging
 import re
 from io import BytesIO
 
 import requests
 from bs4 import BeautifulSoup
 from PIL import Image
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 def send_file(path):
     with open(path, 'rb') as image_processed:
@@ -42,10 +46,34 @@ def main(event, context):
 
     page_response = requests.get(page_link, headers=headers)
     soup = BeautifulSoup(page_response.text, features='html.parser')
-    image_names = soup.find_all("script")[12]
 
+    # Find the script tag containing image names
+    scripts = soup.find_all("script")
+    logger.info(f"Found {len(scripts)} script tags")
+
+    image_names = None
     p = re.compile(r'theImageNames\[[0-9]{1,3}\] = "(.*?)";')
+
+    # Search through all script tags to find the one with theImageNames
+    for idx, script in enumerate(scripts):
+        if 'theImageNames' in str(script):
+            logger.info(f"Found theImageNames in script tag {idx}")
+            image_names = script
+            break
+
+    if not image_names:
+        logger.error("Could not find script tag with theImageNames")
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "Could not find radar images on BOM website"}),
+            "headers": {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+            }
+        }
+
     gif_links = p.findall(str(image_names))
+    logger.info(f"Found {len(gif_links)} radar images")
 
     gif_images = []
 
@@ -72,9 +100,21 @@ def main(event, context):
         new_image = Image.alpha_composite(new_image, image)
         new_image = Image.alpha_composite(new_image, range_image)
         new_image = Image.alpha_composite(new_image, locations_image)
-        
+
         created_images.append(new_image)
 
+    if not created_images:
+        logger.error("No images were created")
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "No radar images could be processed"}),
+            "headers": {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+            }
+        }
+
+    logger.info(f"Creating GIF with {len(created_images)} frames")
     created_images[0].save('/tmp/radar.gif',
                 save_all=True,
                 append_images=created_images[1:],
